@@ -1,12 +1,16 @@
-hello
 
 
+Migrate DB
 ```
-flask db migrate -m "Initial migration."
+python3 -m flask db migrate -m "Initial migration."
+python3 -m flask db migrate -m "commit"
+```
 
-flask db upgrade
 
+Upgrade DB
+```
+python3 -m flask db upgrade
 
-flask db downgrade
-
+# downgrade
+python3 -mflask db downgrade
 ```

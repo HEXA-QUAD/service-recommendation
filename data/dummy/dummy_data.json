@@ -1,0 +1,116 @@
+{
+    "courses": {
+        "COMS0": [],
+        "COMS1": [
+            "COMS0"
+        ],
+        "COMS2": [
+            "COMS0",
+            "COMS1"
+        ],
+        "COMS3": [
+            "COMS2"
+        ],
+        "COMS4": [
+            "COMS0",
+            "COMS2",
+            "COMS3"
+        ],
+        "COMS5": [
+            "COMS0",
+            "COMS2",
+            "COMS4"
+        ],
+        "COMS6": [
+            "COMS4"
+        ],
+        "COMS7": [
+            "COMS1",
+            "COMS4",
+            "COMS6"
+        ],
+        "COMS8": [
+            "COMS3",
+            "COMS7"
+        ],
+        "COMS9": [
+            "COMS1",
+            "COMS8",
+            "COMS5"
+        ],
+        "COMS10": [
+            "COMS2",
+            "COMS6",
+            "COMS5",
+            "COMS9"
+        ],
+        "COMS11": [
+            "COMS10"
+        ],
+        "COMS12": [
+            "COMS6",
+            "COMS9"
+        ],
+        "COMS13": [
+            "COMS1",
+            "COMS9",
+            "COMS10"
+        ],
+        "COMS14": [
+            "COMS11",
+            "COMS13"
+        ],
+        "COMS15": [
+            "COMS14"
+        ],
+        "COMS16": [
+            "COMS7",
+            "COMS15",
+            "COMS12"
+        ],
+        "COMS17": [
+            "COMS8",
+            "COMS16"
+        ],
+        "COMS18": [
+            "COMS10",
+            "COMS13"
+        ],
+        "COMS19": [
+            "COMS15",
+            "COMS17"
+        ]
+    },
+    "track": {
+        "Track_0": [
+            "COMS0",
+            "COMS1",
+            "COMS2",
+            "COMS3"
+        ],
+        "Track_1": [
+            "COMS1",
+            "COMS2",
+            "COMS3",
+            "COMS4"
+        ],
+        "Track_2": [
+            "COMS2",
+            "COMS3",
+            "COMS4",
+            "COMS5"
+        ],
+        "Track_3": [
+            "COMS3",
+            "COMS4",
+            "COMS5",
+            "COMS6"
+        ],
+        "Track_4": [
+            "COMS4",
+            "COMS5",
+            "COMS6",
+            "COMS7"
+        ]
+    }
+}
