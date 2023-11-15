@@ -4,7 +4,7 @@ from config import Config
 import util
 import model
 from model import StudentHistory, Recommendation, Course, Track
-
+import recommendation.recommendation as R
 
 """
 Course section
@@ -128,16 +128,105 @@ def add_student_history():
     return jsonify({"msg": "Student history added"})
 
 
-@app.route("/api/get_student_history", methods=["POST"])
+@app.route("/api/get_student_history", methods=["GET"])
 def get_student_history():
+    all = request.args.get("all")
     uni = request.json.get("uni")
     semester = request.json.get("semester")
-    history = StudentHistory.query.filter_by(uni=uni, semester=semester).get_or_404()
-    print(history)
-    return
+    history = StudentHistory.query.filter_by(uni=uni, semester=semester)
+    if history.count() == 0:
+        return jsonify({"msg": "no history"})
+    if all:
+        result = []
+        for h in history:
+            result.append(h.to_dict())
+        msg = "get all"
+    else:
+        history = history.order_by(StudentHistory.created_at).first()
+        result = history.to_dict()
+        msg = "get most recent"
+    return jsonify({"msg": msg, "data": result})
+
+
+"""
+Recommendation section
+
+1. base on the student tracks
+2. base on the taken courses
+"""
+
+
+@app.route("/api/get_recommendation", methods=["GET"])
+def get_recommendation():
+    all = request.args.get("all")
+    data = request.get_json()
+    uni = data["uni"]
+    recommendation = Recommendation.query.filter_by(uni=uni).order_by(
+        Recommendation.created_at.desc()
+    )
+    if recommendation.count() == 0:
+        return jsonify({"msg": "no recommendation yet"})
+
+    if all:
+        result = []
+        for h in recommendation:
+            result.append(h.to_dict())
+        msg = "get all"
+        return jsonify({"msg": msg, "data": result})
+    else:
+        recommendation = recommendation.first()
+        result = recommendation.to_dict()
+        msg = "get most recent"
+        return jsonify({"msg": msg, "data": result})
+
+
+@app.route("/api/create_recommendation", methods=["POST"])
+def create_recommendation():
+    """create recommendation base on the most recent history"""
+    data = request.get_json()
+    uni = data["uni"]
+    history = (
+        StudentHistory.query.filter_by(uni=uni)
+        .order_by(StudentHistory.created_at.desc())
+        .first()
+    )
+    if not history:
+        return jsonify({"msg": "no student history yet"}), 404
+    courses_taken = history.courses
+    track_name = history.track_name
+    track = Track.query.filter_by(track_name=track_name).first()
+    track_courses = track.required_courses
+
+    ok, missing_courses = R.can_graduate(courses_taken, track_courses)
+    if ok:
+        return jsonify({"msg": "Already fullfilled the requirements"})
+    # Do the course plan
+    # missing_mp = {}
+    # for c in list(missing_courses):
+    #     missing_mp[c] = (Course.query.filter_by(course_name=c).first()).to_dict(
+    #         ["prerequisites"]
+    #     )['prerequisites']
+    all_course = Course.query.all()
+    all_course_mp = {}
+    for c in all_course:
+        t = c.to_dict(keys=["course_name", "prerequisites"])
+        all_course_mp[t["course_name"]] = t["prerequisites"]
+    ok, seq = R.suggest_course_sequence(courses_taken, missing_courses, all_course_mp)
+    if ok:
+        r = model.Recommendation(
+            rid=util.generate_id("R"),
+            uni=uni,
+            hid=history.hid,
+            content={"plan_seq": seq},
+        )
+        db.session.add(r)
+        db.session.commit()
+        return jsonify({"msg": "success", "data": seq})
+    return jsonify({"msg": "encounter error"})
 
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
+
     # with app.app_context():
     #     db.create_all()

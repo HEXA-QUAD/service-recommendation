@@ -31,4 +31,3 @@ def check_and_clean_semester(semester_str):
 def check_valid_year(year_int):
     # check if the courses are valid
     pass
-

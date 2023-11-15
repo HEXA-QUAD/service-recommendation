@@ -1,0 +1,31 @@
+{
+    "courses": {
+        "IntroToCompSci": [],
+        "DataStructures": ["IntroToCompSci"],
+        "Algorithms": ["DataStructures"],
+        "LinearAlgebra": [],
+        "Calculus": [],
+        "MachineLearning": ["Algorithms", "LinearAlgebra", "Statistics"],
+        "Statistics": ["Calculus"],
+        "DatabaseSystems": ["DataStructures"],
+        "OperatingSystems": ["DataStructures", "ComputerArchitecture"],
+        "ComputerArchitecture": ["IntroToCompSci"],
+        "Networks": ["OperatingSystems"],
+        "SoftwareEngineering": ["DataStructures", "Algorithms"],
+        "WebDevelopment": ["SoftwareEngineering"],
+        "AI": ["MachineLearning", "Algorithms"],
+        "MobileAppDevelopment": ["SoftwareEngineering"],
+        "CyberSecurity": ["OperatingSystems", "Networks"],
+        "CloudComputing": ["Networks", "OperatingSystems"],
+        "GameDevelopment": ["Graphics", "Algorithms"],
+        "Graphics": ["LinearAlgebra", "DataStructures"],
+        "HumanComputerInteraction": ["WebDevelopment", "Graphics"]
+    },
+    "track": {
+        "SoftwareDevelopment": ["IntroToCompSci", "DataStructures", "Algorithms", "SoftwareEngineering", "WebDevelopment", "MobileAppDevelopment"],
+        "SystemsEngineering": ["ComputerArchitecture", "OperatingSystems", "Networks", "CyberSecurity", "CloudComputing"],
+        "DataScience": ["Calculus", "Statistics", "DataStructures", "MachineLearning", "AI"],
+        "GameDesign": ["IntroToCompSci", "DataStructures", "Graphics", "GameDevelopment"],
+        "UserInterfaceDesign": ["WebDevelopment", "Graphics", "HumanComputerInteraction"]
+    }
+}

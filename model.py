@@ -22,6 +22,7 @@ class Track(db.Model):
             "required_courses": self.required_courses,
         }
 
+
 class Course(db.Model):
     cid = db.Column(db.String(256), primary_key=True)
     course_name = db.Column(db.String(80), unique=True, nullable=False)
@@ -30,13 +31,21 @@ class Course(db.Model):
     def __repr__(self):
         return f"<Course {self.name}>"
 
-    def to_dict(self):
-        return {
+    # def to_dict(self):
+    #     return {
+    #         "cid": self.cid,
+    #         "course_name": self.course_name,
+    #         "prerequisites": self.prerequisites,
+    #     }
+    def to_dict(self, keys=None):
+        full_dict = {
             "cid": self.cid,
             "course_name": self.course_name,
-            "prerequisites": self.prerequisites,
+            "prerequisites": self.prerequisites
         }
-
+        if keys is None:
+            return full_dict
+        return {key: full_dict[key] for key in keys if key in full_dict}
 
 class StudentHistory(db.Model):
     hid = db.Column(db.String(256), primary_key=True)
@@ -45,7 +54,7 @@ class StudentHistory(db.Model):
     year = db.Column(db.Integer)
     track_name = db.Column(db.String(80))
     courses = db.Column(db.JSON)  # list of course taken during this semester
-    time_stamp = db.Column(db.DateTime, server_default=db.func.now())
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
         return f"<Student history {self.uni}>"
@@ -58,13 +67,14 @@ class StudentHistory(db.Model):
             "year": self.year,
             "track_name": self.track_name,
             "courses": self.courses,
-            "time_stamp": self.time_stamp,
+            "created_at": self.created_at,
         }
 
 
 class Recommendation(db.Model):
     rid = db.Column(db.String(256), primary_key=True)
-    time_stamp = db.Column(db.DateTime, server_default=db.func.now())
+    uni = db.Column(db.String(80))
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
     hid = db.Column(db.String(256))
     content = db.Column(db.JSON)  # reocommandation content
 
@@ -74,7 +84,8 @@ class Recommendation(db.Model):
     def to_dict(self):
         return {
             "rid": self.rid,
-            "time_stamp": self.time_stamp,
+            "created_at": self.created_at,
+            "uni": self.uni,
             "hid": self.hid,
             "content": self.content,
         }
