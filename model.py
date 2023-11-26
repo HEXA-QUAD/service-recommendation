@@ -84,7 +84,6 @@ class Recommendation(db.Model):
             "rid": self.rid,
             "created_at": self.created_at,
             "uni": self.uni,
-            "hid": self.hid,
             "content": self.content,
         }
 

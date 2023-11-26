@@ -292,13 +292,28 @@ def create_recommendation():
         r = model.Recommendation(
             rid=util.generate_id("R"),
             uni=uni,
-            hid=history.hid,
             content={"plan_seq": seq},
         )
         db.session.add(r)
         db.session.commit()
         return jsonify({"msg": "success", "data": seq})
     return jsonify({"msg": "encounter error"})
+
+
+@app.route("/api/fufilled_course_prerequisites", methods=["GET"])
+def fufilled_course_prerequisites():
+    data = request.get_json()
+    courses_taken = data["courses_taken"]  # list of the taken courses
+    target_course = data["target_course"]
+    course = db.session.query(Course).filter_by(course_name=target_course).first()
+    if not course:
+        return jsonify({"msg": "Course not found"}), 404
+    status, _ = R.can_graduate(courses_taken, course.prerequisites)
+    if status:
+        #fufilled
+        return jsonify({"msg": "Fufilled"}), 200
+    else:
+        return jsonify({"msg": "Not Fufilled"}), 200
 
 
 if __name__ == "__main__":
