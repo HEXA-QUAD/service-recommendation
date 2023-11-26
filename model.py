@@ -47,35 +47,33 @@ class Course(db.Model):
             return full_dict
         return {key: full_dict[key] for key in keys if key in full_dict}
 
-class StudentHistory(db.Model):
-    hid = db.Column(db.String(256), primary_key=True)
-    uni = db.Column(db.String(80))
-    semester = db.Column(db.String(80))
-    year = db.Column(db.Integer)
-    track_name = db.Column(db.String(80))
-    courses = db.Column(db.JSON)  # list of course taken during this semester
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+# class StudentHistory(db.Model):
+#     hid = db.Column(db.String(256), primary_key=True)
+#     uni = db.Column(db.String(80))
+#     semester = db.Column(db.String(80))
+#     year = db.Column(db.Integer)
+#     track_name = db.Column(db.String(80))
+#     courses = db.Column(db.JSON)  # list of course taken during this semester
+#     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    def __repr__(self):
-        return f"<Student history {self.uni}>"
+#     def __repr__(self):
+#         return f"<Student history {self.uni}>"
 
-    def to_dict(self):
-        return {
-            "hid": self.hid,
-            "uni": self.uni,
-            "semester": self.semester,
-            "year": self.year,
-            "track_name": self.track_name,
-            "courses": self.courses,
-            "created_at": self.created_at,
-        }
-
+#     def to_dict(self):
+#         return {
+#             "hid": self.hid,
+#             "uni": self.uni,
+#             "semester": self.semester,
+#             "year": self.year,
+#             "track_name": self.track_name,
+#             "courses": self.courses,
+#             "created_at": self.created_at,
+#         }
 
 class Recommendation(db.Model):
     rid = db.Column(db.String(256), primary_key=True)
-    uni = db.Column(db.String(80))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    hid = db.Column(db.String(256))
+    uni = db.Column(db.String(256))
     content = db.Column(db.JSON)  # reocommandation content
 
     def __repr__(self):

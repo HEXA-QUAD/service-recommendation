@@ -3,7 +3,7 @@ from common import app, db
 from config import Config
 import util
 import model
-from model import StudentHistory, Recommendation, Course, Track
+from model import Recommendation, Course, Track
 import recommendation.recommendation as R
 
 """
@@ -13,11 +13,16 @@ Course section
 
 @app.route("/api/get_course", methods=["GET"])
 def get_course():
-    course_name = request.json.get("course_name")
-    course = db.session.execute(
-        db.select(Course).filter_by(course_name=course_name)
-    ).scalar_one()
-    result = course.to_dict()
+    course_name = request.args.get("course_name", None)
+    # course_name = request.json.get("course_name")
+    if course_name:
+        course = db.session.execute(
+            db.select(Course).filter_by(course_name=course_name)
+        ).scalar_one()
+        result = course.to_dict()
+    else:
+        courses = Course.query.all()
+        result = [c.to_dict() for c in courses]
     return jsonify({"msg": "success", "data": result})
 
 
@@ -47,6 +52,34 @@ def add_course():
     return jsonify({"msg": message})
 
 
+@app.route("/api/remove_course", methods=["DELETE"])
+def remove_course():
+    cid = request.json.get("cid")
+    course = db.session.query(Course).filter_by(cid=cid).first()
+    if not course:
+        return jsonify({"msg": "Course not found"}), 404
+
+    db.session.delete(course)
+    db.session.commit()
+
+    return jsonify({"msg": "Course successfully removed"}), 200
+
+
+@app.route("/api/update_course", methods=["PUT"])
+def update_course():
+    cid = request.json.get("cid")
+    course_name = request.json.get("course_name")
+    prerequisites = request.json.get("prerequisites")
+    course = db.session.query(Course).filter_by(cid=cid).first()
+    if not course:
+        return jsonify({"msg": "Course not found"}), 404
+    course.course_name = course_name
+    course.prerequisites = prerequisites
+    db.session.commit()
+
+    return jsonify({"msg": "Course successfully updated"}), 200
+
+
 """
 Track section
 """
@@ -54,16 +87,22 @@ Track section
 
 @app.route("/api/get_track", methods=["GET"])
 def get_track():
-    data = request.get_json()
-    track_name = data["track_name"]
+    # data = request.get_json()
+    track_name = request.args.get("track_name", None)
+    # track_name = data["track_name"]
     try:
-        tracks = Track.query.filter_by(track_name=track_name)
-        if tracks.count() > 0:
-            track = tracks.first()
-            result = track.to_dict()
-            return jsonify({"msg": "success", "data": result})
+        if track_name:
+            tracks = Track.query.filter_by(track_name=track_name)
+            if tracks.count() > 0:
+                track = tracks.first()
+                result = track.to_dict()
+                return jsonify({"msg": "success", "data": result})
+            else:
+                return jsonify({"msg": "no entry"})
         else:
-            return jsonify({"msg": "no entry"})
+            tracks = Track.query.all()
+            return jsonify({"msg": "success", "data": [t.to_dict() for t in tracks]})
+
     except Exception as e:
         return {"error": str(e)}, 500
 
@@ -101,51 +140,82 @@ def add_track():
         return {"error": str(e)}, 500
 
 
+@app.route("/api/remove_track", methods=["DELETE"])
+def remove_track():
+    tid = request.json.get("tid")
+    track = db.session.query(Track).filter_by(tid=tid).first()
+    if not track:
+        return jsonify({"msg": "Track not found"}), 404
+
+    db.session.delete(track)
+    db.session.commit()
+
+    return jsonify({"msg": "Track successfully removed"}), 200
+
+
+@app.route("/api/update_track", methods=["PUT"])
+def update_track():
+    tid = request.json.get("tid")
+    track_name = request.json.get("track_name")
+    required_courses = request.json.get("required_courses")
+
+    track = db.session.query(Track).filter_by(tid=tid).first()
+    if not track:
+        return jsonify({"msg": "Track not found"}), 404
+
+    track.track_name = track_name
+    track.required_courses = required_courses
+
+    db.session.commit()
+
+    return jsonify({"msg": "Track successfully updated"}), 200
+
+
 """
 Student History section
 """
 
 
-@app.route("/api/add_student_history", methods=["POST"])
-def add_student_history():
-    uni = request.json.get("uni")
-    courses = request.json.get("courses")  # enfore sanity checking
-    semester = request.json.get("semester")
-    track_name = request.json.get("track_name")
-    year = request.json.get("year")
+# @app.route("/api/add_student_history", methods=["POST"])
+# def add_student_history():
+#     uni = request.json.get("uni")
+#     courses = request.json.get("courses")  # enfore sanity checking
+#     semester = request.json.get("semester")
+#     track_name = request.json.get("track_name")
+#     year = request.json.get("year")
 
-    hid = util.generate_id("S")
-    history = model.StudentHistory(
-        hid=hid,
-        uni=uni,
-        courses=courses,
-        semester=semester,
-        year=year,
-        track_name=track_name,
-    )
-    db.session.add(history)
-    db.session.commit()
-    return jsonify({"msg": "Student history added"})
+#     hid = util.generate_id("S")
+#     history = model.StudentHistory(
+#         hid=hid,
+#         uni=uni,
+#         courses=courses,
+#         semester=semester,
+#         year=year,
+#         track_name=track_name,
+#     )
+#     db.session.add(history)
+#     db.session.commit()
+#     return jsonify({"msg": "Student history added"})
 
 
-@app.route("/api/get_student_history", methods=["GET"])
-def get_student_history():
-    all = request.args.get("all")
-    uni = request.json.get("uni")
-    semester = request.json.get("semester")
-    history = StudentHistory.query.filter_by(uni=uni, semester=semester)
-    if history.count() == 0:
-        return jsonify({"msg": "no history"})
-    if all:
-        result = []
-        for h in history:
-            result.append(h.to_dict())
-        msg = "get all"
-    else:
-        history = history.order_by(StudentHistory.created_at).first()
-        result = history.to_dict()
-        msg = "get most recent"
-    return jsonify({"msg": msg, "data": result})
+# @app.route("/api/get_student_history", methods=["GET"])
+# def get_student_history():
+#     all = request.args.get("all")
+#     uni = request.json.get("uni")
+#     semester = request.json.get("semester")
+#     history = StudentHistory.query.filter_by(uni=uni, semester=semester)
+#     if history.count() == 0:
+#         return jsonify({"msg": "no history"})
+#     if all:
+#         result = []
+#         for h in history:
+#             result.append(h.to_dict())
+#         msg = "get all"
+#     else:
+#         history = history.order_by(StudentHistory.created_at).first()
+#         result = history.to_dict()
+#         msg = "get most recent"
+#     return jsonify({"msg": msg, "data": result})
 
 
 """
@@ -153,11 +223,15 @@ Recommendation section
 
 1. base on the student tracks
 2. base on the taken courses
+
+Note:
+1. need to have the student previous history
 """
 
 
 @app.route("/api/get_recommendation", methods=["GET"])
 def get_recommendation():
+    # get the most recent recommendation
     all = request.args.get("all")
     data = request.get_json()
     uni = data["uni"]
@@ -185,27 +259,29 @@ def create_recommendation():
     """create recommendation base on the most recent history"""
     data = request.get_json()
     uni = data["uni"]
-    history = (
-        StudentHistory.query.filter_by(uni=uni)
-        .order_by(StudentHistory.created_at.desc())
-        .first()
-    )
-    if not history:
-        return jsonify({"msg": "no student history yet"}), 404
-    courses_taken = history.courses
-    track_name = history.track_name
+    courses_taken = data["courses_taken"]  # list of the taken courses
+    track_name = data["track_name"]
+
+    # history = (
+    #     StudentHistory.query.filter_by(uni=uni)
+    #     .order_by(StudentHistory.created_at.desc())
+    #     .first()
+    # )
+    # if not history:
+    #     return jsonify({"msg": "no student history yet"}), 404
+    # courses_taken = history.courses
+    # track_name = history.track_name
+
     track = Track.query.filter_by(track_name=track_name).first()
+    if not track:
+        return jsonify({"msg": "Track not found"}), 404
+
     track_courses = track.required_courses
 
     ok, missing_courses = R.can_graduate(courses_taken, track_courses)
     if ok:
         return jsonify({"msg": "Already fullfilled the requirements"})
-    # Do the course plan
-    # missing_mp = {}
-    # for c in list(missing_courses):
-    #     missing_mp[c] = (Course.query.filter_by(course_name=c).first()).to_dict(
-    #         ["prerequisites"]
-    #     )['prerequisites']
+
     all_course = Course.query.all()
     all_course_mp = {}
     for c in all_course:
