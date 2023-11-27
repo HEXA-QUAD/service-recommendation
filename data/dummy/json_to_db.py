@@ -2,8 +2,8 @@ import requests
 import json
 
 
-api_add_course = "http://127.0.0.1:8000/api/add_course"  
-api_add_track = "http://127.0.0.1:8000/api/add_track"  
+api_add_course = "http://3.144.39.6:5000/api/add_course"  
+api_add_track = "http://3.144.39.6:5000/api/add_track"  
 
 with open("gpt_dummy_1.json", "r") as json_file:
     # Parse the JSON data into a Python dictionary

@@ -233,8 +233,9 @@ Note:
 def get_recommendation():
     # get the most recent recommendation
     all = request.args.get("all")
-    data = request.get_json()
-    uni = data["uni"]
+    uni = request.args.get("uni")
+    # data = request.get_json()
+    # uni = data["uni"]
     recommendation = Recommendation.query.filter_by(uni=uni).order_by(
         Recommendation.created_at.desc()
     )
