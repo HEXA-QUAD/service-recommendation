@@ -301,7 +301,7 @@ def create_recommendation():
     return jsonify({"msg": "encounter error"})
 
 
-@app.route("/api/fufilled_course_prerequisites", methods=["GET"])
+@app.route("/api/fufilled_course_prerequisites", methods=["POST"])
 def fufilled_course_prerequisites():
     data = request.get_json()
     courses_taken = data["courses_taken"]  # list of the taken courses
